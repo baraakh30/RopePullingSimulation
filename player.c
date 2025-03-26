@@ -69,18 +69,17 @@ void handleRoundEndSignal(int sig) {
     pulling = false;
     
     // Regain some energy for next round
-    int energyGain = rand() % 20 + 10;
-    energy += energyGain;
-    if (energy > config.maxInitialEnergy) {
-        energy = config.maxInitialEnergy;
-    }
+    energy = rand() % (config.maxInitialEnergy - config.minInitialEnergy + 1) + config.minInitialEnergy;
+    decreaseRate = rand() % (config.maxEnergyDecreaseRate - config.minEnergyDecreaseRate + 1) + config.minEnergyDecreaseRate;
+
+    pause();
 }
 
 void maybePlayerFalls() {
     // 1% chance of falling each second
     if (rand() % 100 == 0) {
         fallen = true;
-        
+        printf("Player %d from Team %d has fallen!\n", playerId, teamId);
         // Notify referee of zero energy
         PlayerMessage msg;
         msg.playerId = playerId;
@@ -96,14 +95,12 @@ void maybePlayerFalls() {
 }
 
 void rejoinAfterFall() {
+    printf("Player %d from Team %d has rejoined!\n", playerId, teamId);
     int rejoinTime = rand() % (config.maxRejoiningTime - config.minRejoiningTime + 1) + config.minRejoiningTime;
     sleep(rejoinTime);
-    
     fallen = false;
-    
     // Regain some energy when rejoining
-    energy = rand() % (config.maxInitialEnergy / 2) + (config.maxInitialEnergy / 4);
-    
+    energy = rand() % (config.maxInitialEnergy / 2) + (config.maxInitialEnergy / 4);    
     // Notify referee of rejoining
     calculateEffort();
 }

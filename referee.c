@@ -34,7 +34,7 @@ void loadConfig(const char *filename) {
     fscanf(fp, "maxScore = %d\n", &config.maxScore);
     fscanf(fp, "consecutiveWinsNeeded = %d\n", &config.consecutiveWinsNeeded);
     fscanf(fp, "gameDuration = %d\n", &config.gameDuration);
-    
+    fscanf(fp, "waitBeforeWin = %d\n", &config.waitBeforeWin);
     fclose(fp);
 }
 
@@ -115,6 +115,7 @@ void collectPlayerEfforts() {
 
 void determineRoundWinner() {
     int effortDifference = team1.totalEffort - team2.totalEffort;
+    static int lastLeadingTeam = 0; // Track which team was leading
     
     printf("Team 1 Effort: %d\n", team1.totalEffort);
     printf("Team 2 Effort: %d\n", team2.totalEffort);
@@ -122,11 +123,22 @@ void determineRoundWinner() {
     
     // Check if a team has won
     if (abs(effortDifference) >= config.winThreshold) {
+        int currentLeadingTeam = (effortDifference > 0) ? 1 : 2;
+        
+        // If the leading team changed, reset the timer
+        if (winPending && lastLeadingTeam != currentLeadingTeam) {
+            printf("Lead changed from Team %d to Team %d! Resetting countdown.\n", 
+                   lastLeadingTeam, currentLeadingTeam);
+            winPending = false;
+        }
+        
         if (!winPending) {
             winPending = true;
             winCandidateStartTime = time(NULL);
-            printf("Win threshold exceeded! Waiting 5 seconds to confirm...\n");
-        } else if (time(NULL) - winCandidateStartTime >= 5) {
+            lastLeadingTeam = currentLeadingTeam;
+            printf("Win threshold exceeded by Team %d! Waiting %d seconds to confirm...\n", 
+                   currentLeadingTeam,config.waitBeforeWin);
+        } else if (time(NULL) - winCandidateStartTime >= config.waitBeforeWin) {
             // Confirm the winner
             roundActive = false;
     
@@ -152,6 +164,7 @@ void determineRoundWinner() {
             signalTeams(SIG_ROUND_END);
             checkGameEnd();
             winPending = false;
+            lastLeadingTeam = 0; // Reset for next round
     
             if (gameRunning) {
                 sleep(1);
@@ -163,6 +176,7 @@ void determineRoundWinner() {
         if (winPending) {
             printf("Win threshold no longer met. Resetting countdown.\n");
             winPending = false;
+            lastLeadingTeam = 0;
         }
     }
     
@@ -188,7 +202,6 @@ void determineRoundWinner() {
             startNewRound();
         }
     }
-    
 }
 
 void checkGameEnd() {
@@ -241,7 +254,7 @@ void initOpenGL(int argc, char **argv) {
     
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
-    glutTimerFunc(100, timer, 0);
+    glutTimerFunc(1000, timer, 0);
     
     glClearColor(0.0, 0.0, 0.0, 1.0);
 }
@@ -277,8 +290,8 @@ void timer(int value) {
     // Redraw the scene
     glutPostRedisplay();
     
-    // Call timer again after 100ms
-    glutTimerFunc(100, timer, 0);
+    // Call timer again after 1s
+    glutTimerFunc(1000, timer, 0);
 }
 
 void drawTeams() {

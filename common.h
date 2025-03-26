@@ -26,6 +26,7 @@ typedef struct {
     int maxScore;
     int consecutiveWinsNeeded;
     int gameDuration;  // in seconds
+    int waitBeforeWin; // in seconds
 } GameConfig;
 
 // Message structure for player to referee communication
