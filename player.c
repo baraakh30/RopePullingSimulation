@@ -112,7 +112,7 @@ void calculateEffort() {
     if (!pulling || fallen) return;
     
     // Calculate weighted effort based on position (1, 2, 3, or 4)
-    int weightedEffort = energy * (position + 1) * (rand() % 3 + 1);  // 1x, 2x or 3x
+    int weightedEffort = energy * (position + 1) ; 
     
     // Send effort to referee
     PlayerMessage msg;

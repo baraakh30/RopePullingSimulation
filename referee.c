@@ -14,6 +14,7 @@ static int windowWidth = 800;
 static int windowHeight = 600;
 static bool winPending = false;
 static time_t winCandidateStartTime = 0;
+void startNewRound();
 
 void loadConfig(const char *filename) {
     FILE *fp = fopen(filename, "r");
