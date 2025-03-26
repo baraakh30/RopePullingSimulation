@@ -1,7 +1,7 @@
-#include "common.h"
-#include "referee.h"
-#include "team.h"
-#include "player.h"
+#include "../include/common.h"
+#include "../include/referee.h"
+#include "../include/team.h"
+#include "../include/player.h"
 
 GameConfig config;
 int team1Score = 0;

@@ -1,4 +1,4 @@
-#include "team.h"
+#include "../include/team.h"
 
 void initTeam(Team *team, int teamId) {
     team->id = teamId;

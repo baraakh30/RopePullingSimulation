@@ -1,4 +1,4 @@
-#include "player.h"
+#include "../include/player.h"
 
 static int playerId;
 static int teamId;

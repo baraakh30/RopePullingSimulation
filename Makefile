@@ -2,23 +2,27 @@ CC = gcc
 CFLAGS = -Wall -g
 LDFLAGS = -lGL -lGLU -lglut -lm
 
-SRC = main.c player.c referee.c team.c
-OBJ = $(SRC:.c=.o)
+SRC_DIR = src
+BUILD_DIR = build
+SRC = $(wildcard $(SRC_DIR)/*.c)
+OBJ = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
 EXEC = rope_game
 
 .PHONY: all clean run
 
-all: $(EXEC)
+all: $(BUILD_DIR) $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-%.o: %.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -rf $(BUILD_DIR) $(EXEC)
 
 run: all
 	./$(EXEC) config.txt
-	

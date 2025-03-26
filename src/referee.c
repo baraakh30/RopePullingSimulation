@@ -1,4 +1,4 @@
-#include "referee.h"
+#include "../include/referee.h"
 
 static Team team1;
 static Team team2;
