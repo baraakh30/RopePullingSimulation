@@ -1,0 +1,10 @@
+minInitialEnergy = 100
+maxInitialEnergy = 200
+minEnergyDecreaseRate = 1
+maxEnergyDecreaseRate = 5
+minRejoiningTime = 1
+maxRejoiningTime = 3
+winThreshold = 10
+maxScore = 3
+consecutiveWinsNeeded = 2
+gameDuration = 20
