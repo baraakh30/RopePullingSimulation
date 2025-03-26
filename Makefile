@@ -21,3 +21,4 @@ clean:
 
 run: all
 	./$(EXEC) config.txt
+	
