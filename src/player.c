@@ -95,9 +95,9 @@ void maybePlayerFalls() {
 }
 
 void rejoinAfterFall() {
-    printf("Player %d from Team %d has rejoined!\n", playerId, teamId);
     int rejoinTime = rand() % (config.maxRejoiningTime - config.minRejoiningTime + 1) + config.minRejoiningTime;
     sleep(rejoinTime);
+    printf("Player %d from Team %d has rejoined!\n", playerId, teamId);
     fallen = false;
     // Regain some energy when rejoining
     energy = rand() % (config.maxInitialEnergy / 2) + (config.maxInitialEnergy / 4);    
