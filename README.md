@@ -15,28 +15,19 @@ This project implements a multi-processing application that simulates a rope pul
 ### Install dependencies (Ubuntu/Debian)
 
 ```bash
-sudo apt-get update
-sudo apt-get install build-essential
-sudo apt-get install freeglut3-dev
-sudo apt-get install libgl1-mesa-dev
-sudo apt-get install libglu1-mesa-dev
+sudo apt-get update && sudo apt-get install -y gcc gdb build-essential freeglut3-dev libgl1-mesa-dev libglu1-mesa-dev
 ```
 
 ### Install dependencies (Fedora/CentOS/RHEL)
 
 ```bash
-sudo dnf install gcc make
-sudo dnf install freeglut-devel
-sudo dnf install mesa-libGL-devel
-sudo dnf install mesa-libGLU-devel
+sudo dnf install -y gcc make freeglut-devel mesa-libGL-devel mesa-libGLU-devel
 ```
 
 ### Install dependencies (Arch Linux)
 
 ```bash
-sudo pacman -S base-devel
-sudo pacman -S freeglut
-sudo pacman -S mesa
+sudo pacman -S --noconfirm base-devel freeglut mesa
 ```
 
 ## Building the Project
