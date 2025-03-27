@@ -185,15 +185,20 @@ void determineRoundWinner() {
         int winner = rand() % 2 + 1;
         if (winner == 1) {
             team1.isWinner = true;
+            team2.isWinner = false;
             team1Score++;
+            if (lastWinner == 1) consecutiveWins++;
+            else { consecutiveWins = 1; lastWinner = 1; }
             lastWinner = 1;
         } else {
             team2.isWinner = true;
+            team1.isWinner = false;
             team2Score++;
+            if (lastWinner == 2) consecutiveWins++;
+            else { consecutiveWins = 1; lastWinner = 2; }
             lastWinner = 2;
         }
         printf("Both teams exhausted! Randomly picking Team %d as winner.\n", winner);
-        consecutiveWins = 1;
         roundsPlayed++;
         signalTeams(SIG_ROUND_END);
         checkGameEnd();
@@ -350,7 +355,9 @@ void drawRope() {
     // Calculate rope position based on effort difference
     float effortDifference = team1.totalEffort - team2.totalEffort;
     float maxOffset = windowWidth * 0.2;
-    float offset = (effortDifference / config.winThreshold) * maxOffset;
+    
+    // FIXED: Negative the offset so rope moves toward winning team
+    float offset = -1 * (effortDifference / config.winThreshold) * maxOffset;
     
     // Clamp the offset
     if (offset > maxOffset) offset = maxOffset;

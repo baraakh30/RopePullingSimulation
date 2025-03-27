@@ -18,6 +18,7 @@ void playerProcess(int playerId, int teamId);
 void handleGetReadySignal(int sig);
 void handleStartPullingSignal(int sig);
 void handleRoundEndSignal(int sig);
+void handleAlarmSignal(int sig);
 void maybePlayerFalls();
 void rejoinAfterFall();
 void calculateEffort();

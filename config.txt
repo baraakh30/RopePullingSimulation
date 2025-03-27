@@ -7,5 +7,5 @@ maxRejoiningTime = 3
 winThreshold = 30
 maxScore = 3
 consecutiveWinsNeeded = 2
-gameDuration = 20
+gameDuration = 30
 waitBeforeWin = 2

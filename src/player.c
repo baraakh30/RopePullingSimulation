@@ -20,7 +20,7 @@ void playerProcess(int id, int tid) {
     signal(SIG_GET_READY, handleGetReadySignal);
     signal(SIG_START_PULLING, handleStartPullingSignal);
     signal(SIG_ROUND_END, handleRoundEndSignal);
-    
+    signal(SIGALRM, handleAlarmSignal);
     // Player main loop
     while (gameRunning) {
         // Player is just waiting for signals
@@ -74,12 +74,14 @@ void handleRoundEndSignal(int sig) {
 
     pause();
 }
-
+static int energyBeforeFall = 0;
 void maybePlayerFalls() {
     // 1% chance of falling each second
     if (rand() % 100 == 0) {
+        pulling = false;
         fallen = true;
         printf("Player %d from Team %d has fallen!\n", playerId, teamId);
+        energyBeforeFall = energy;
         // Notify referee of zero energy
         PlayerMessage msg;
         msg.playerId = playerId;
@@ -96,13 +98,22 @@ void maybePlayerFalls() {
 
 void rejoinAfterFall() {
     int rejoinTime = rand() % (config.maxRejoiningTime - config.minRejoiningTime + 1) + config.minRejoiningTime;
-    sleep(rejoinTime);
-    printf("Player %d from Team %d has rejoined!\n", playerId, teamId);
-    fallen = false;
-    // Regain some energy when rejoining
-    energy = rand() % (config.maxInitialEnergy / 2) + (config.maxInitialEnergy / 4);    
-    // Notify referee of rejoining
-    calculateEffort();
+    
+    // Set an alarm to handle rejoining
+    alarm(rejoinTime);
+}
+
+void handleAlarmSignal(int sig) {
+    if (fallen) {
+        pulling = true;
+        printf("Player %d from Team %d has rejoined!\n", playerId, teamId);
+        fallen = false;
+        // Regain some energy when rejoining
+        energy = energyBeforeFall;    
+        
+        // Notify referee of rejoining
+        calculateEffort();
+    }
 }
 
 void calculateEffort() {
