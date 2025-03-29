@@ -97,6 +97,7 @@ Run the game with:
 - `player.c/h`: Player process implementation
 - `team.c/h`: Team management functions
 - `referee.c/h`: Game coordination and rules
+- `visualizer.c/h`: OpenGL visualization Process
 
 ## Troubleshooting
 
