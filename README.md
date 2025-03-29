@@ -53,11 +53,12 @@ minEnergyDecreaseRate = 1
 maxEnergyDecreaseRate = 5
 minRejoiningTime = 1
 maxRejoiningTime = 3
-winThreshold = 500
+winThreshold = 45
 maxScore = 3
 consecutiveWinsNeeded = 2
-gameDuration = 60
-waitBeforeWin = 5
+gameDuration = 30
+waitBeforeWin = 2
+fallProbability = 3
 ```
 
 Parameter descriptions:
@@ -69,6 +70,7 @@ Parameter descriptions:
 - `consecutiveWinsNeeded`: Number of consecutive round wins to end the game
 - `gameDuration`: Maximum game duration in seconds
 - `waitBeforeWin`: Seconds a team must maintain their lead to win a round
+- `fallProbability` : The Percentage of the Fall Probability of players
 
 ## Running the Simulation
 
