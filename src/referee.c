@@ -72,13 +72,14 @@ void startNewRound()
     signalTeams(SIG_GET_READY);
 
     // Allow players to get ready
-    sleep(1);
+    usleep(500000); // 500ms
 
     // Signal players to start pulling before requesting state
     signalTeams(SIG_START_PULLING);
 
     // Allow players to start pulling
-    sleep(1);
+    usleep(500000); // 500ms
+
 
     requestPlayerStates();
 
