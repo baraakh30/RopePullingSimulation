@@ -6,7 +6,8 @@
 
 #define PLAYERS_PER_TEAM 4
 
-typedef struct {
+typedef struct
+{
     int id;
     Player players[PLAYERS_PER_TEAM];
     int totalEffort;

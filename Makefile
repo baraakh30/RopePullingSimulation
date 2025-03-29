@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g
-LDFLAGS = -lGL -lGLU -lglut -lm
+LDFLAGS = -lGL -lGLU -lglut -lm -lrt -pthread
 
 SRC_DIR = src
 BUILD_DIR = build

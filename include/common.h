@@ -13,9 +13,12 @@
 #include <GL/glut.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/select.h>
+#include <errno.h>
 
 // Configuration structure
-typedef struct {
+typedef struct
+{
     int minInitialEnergy;
     int maxInitialEnergy;
     int minEnergyDecreaseRate;
@@ -25,32 +28,37 @@ typedef struct {
     int winThreshold;
     int maxScore;
     int consecutiveWinsNeeded;
-    int gameDuration;  // in seconds
-    int waitBeforeWin; // in seconds
+    int gameDuration;    // in seconds
+    int waitBeforeWin;   // in seconds
+    int fallProbability; // in % i.e. (5 = 5%)
 } GameConfig;
 
 // Message structure for player to referee communication
-typedef struct {
+typedef struct
+{
     int playerId;
     int teamId;
     int energy;
     int position;
 } PlayerMessage;
 
-// Game state
 extern GameConfig config;
 extern int team1Score;
 extern int team2Score;
 extern int consecutiveWins;
 extern int lastWinner;
 extern bool gameRunning;
+extern int draw;
 
 // Pipe file descriptors
 extern int player_to_referee[2];
+extern int referee_to_visualizer[2];
+extern int visualizer_to_referee[2];
 
 // Signals
 #define SIG_GET_READY SIGUSR1
 #define SIG_START_PULLING SIGUSR2
 #define SIG_ROUND_END SIGTERM
+#define SIG_REQUEST_STATE SIGINT
 
 #endif // COMMON_H

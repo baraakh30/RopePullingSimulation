@@ -3,7 +3,8 @@
 
 #include "common.h"
 
-typedef struct {
+typedef struct
+{
     int id;
     int teamId;
     int energy;
@@ -22,5 +23,6 @@ void handleAlarmSignal(int sig);
 void maybePlayerFalls();
 void rejoinAfterFall();
 void calculateEffort();
+void handleStateRequestSignal(int sig);
 
 #endif // PLAYER_H
