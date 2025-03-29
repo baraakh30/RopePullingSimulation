@@ -1,5 +1,5 @@
 #include "../include/referee.h"
-#include "../include/visual.h"
+#include "../include/visualizer.h"
 
 Team team1;
 Team team2;

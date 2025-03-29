@@ -1,6 +1,6 @@
 #include "../include/common.h"
 #include "../include/referee.h"
-#include "../include/visual.h"
+#include "../include/visualizer.h"
 
 static int windowWidth = 800;
 static int windowHeight = 600;

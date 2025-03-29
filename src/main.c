@@ -2,7 +2,7 @@
 #include "../include/referee.h"
 #include "../include/team.h"
 #include "../include/player.h"
-#include "../include/visual.h"
+#include "../include/visualizer.h"
 
 GameConfig config;
 int team1Score = 0;
