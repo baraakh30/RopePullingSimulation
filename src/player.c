@@ -23,7 +23,7 @@ void playerProcess(int id, int tid, int initialEnergy, int initialDecreaseRate, 
     signal(SIG_GET_READY, handleGetReadySignal);
     signal(SIG_START_PULLING, handleStartPullingSignal);
     signal(SIG_ROUND_END, handleRoundEndSignal);
-    signal(SIG_REQUEST_STATE, handleStateRequestSignal); // New signal handler
+    signal(SIG_REQUEST_STATE, handleStateRequestSignal); 
     signal(SIGALRM, handleAlarmSignal);
     signal(SIG_UPDATE_POSITION, handlePositionUpdateSignal);
 

@@ -49,7 +49,10 @@ void initGame()
 
     // Close write end of player_to_referee pipe in referee
     close(player_to_referee[1]);
+
+    // Close read end of position_pipe pipe in referee
     close(position_pipe[0]);
+    
     // Record start time
     gameStartTime = time(NULL);
 }
