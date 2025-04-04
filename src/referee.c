@@ -104,20 +104,23 @@ void signalTeams(int signal)
     }
 }
 
-// New function to request player states
+// Request player states
 void requestPlayerStates()
 {
     // Reset message arrays
     memset(team1Messages, 0, sizeof(team1Messages));
     memset(team2Messages, 0, sizeof(team2Messages));
 
-    // Signal all players to send their state
+    // Signal all players to send their state - but stagger the signals slightly
     for (int i = 0; i < PLAYERS_PER_TEAM; i++)
     {
         kill(team1.players[i].pid, SIG_REQUEST_STATE);
+        usleep(5000); // Add small delay between signals (5ms)
         kill(team2.players[i].pid, SIG_REQUEST_STATE);
+        usleep(5000); // Add small delay between signals (5ms)
     }
-    // Now collect the responses
+    
+    // Collect the responses
     collectPlayerEfforts();
 }
 
@@ -126,6 +129,8 @@ void collectPlayerEfforts()
     PlayerMessage msg;
     int messagesToRead = PLAYERS_PER_TEAM * 2; // 4 players per team
     int messagesRead = 0;
+    int team1Received = 0;
+    int team2Received = 0;
 
     // Set up for select() with timeout
     fd_set readfds;
@@ -139,15 +144,56 @@ void collectPlayerEfforts()
         // Check if we've been waiting too long (5 seconds total timeout)
         if (time(NULL) - start_time > 5)
         {
-            printf("\nTimeout waiting for player messages: received %d/%d\n",
-                   messagesRead, messagesToRead);
+            printf("\nTimeout waiting for player messages: received %d/%d (Team 1: %d, Team 2: %d)\n",
+                   messagesRead, messagesToRead, team1Received, team2Received);
+                   
+            // Re-signal any players who didn't respond
+            if (team1Received < PLAYERS_PER_TEAM || team2Received < PLAYERS_PER_TEAM) {
+                printf("Re-signaling non-responsive players...\n");
+                for (int i = 0; i < PLAYERS_PER_TEAM; i++) {
+                    // Check which players we need to re-signal
+                    if (i >= team1Received) {
+                        kill(team1.players[i].pid, SIG_REQUEST_STATE);
+                        usleep(10000); // 10ms delay
+                    }
+                    if (i >= team2Received) {
+                        kill(team2.players[i].pid, SIG_REQUEST_STATE);
+                        usleep(10000); // 10ms delay
+                    }
+                }
+                
+                // Give a bit more time for responses
+                time_t retry_start = time(NULL);
+                while ((time(NULL) - retry_start < 2) && (messagesRead < messagesToRead) && gameRunning) {
+                    // Retry logic with shorter timeout
+                    FD_ZERO(&readfds);
+                    FD_SET(player_to_referee[0], &readfds);
+                    timeout.tv_sec = 0;
+                    timeout.tv_usec = 100000; // 100ms
+
+                    int ready = select(player_to_referee[0] + 1, &readfds, NULL, NULL, &timeout);
+                    if (ready > 0 && FD_ISSET(player_to_referee[0], &readfds)) {
+                        ssize_t bytes_read = read(player_to_referee[0], &msg, sizeof(PlayerMessage));
+                        if (bytes_read > 0) {
+                            if (msg.teamId == 1) {
+                                team1Messages[msg.playerId] = msg;
+                                team1Received++;
+                            } else if (msg.teamId == 2) {
+                                team2Messages[msg.playerId] = msg;
+                                team2Received++;
+                            }
+                            messagesRead++;
+                        }
+                    }
+                }
+            }
             break;
         }
 
         FD_ZERO(&readfds);
         FD_SET(player_to_referee[0], &readfds);
 
-        // 100ms timeout for each select call
+        // 200ms timeout for each select call
         timeout.tv_sec = 0;
         timeout.tv_usec = 200000;
 
@@ -176,14 +222,17 @@ void collectPlayerEfforts()
         if (msg.teamId == 1)
         {
             team1Messages[msg.playerId] = msg;
+            team1Received++;
         }
         else if (msg.teamId == 2)
         {
             team2Messages[msg.playerId] = msg;
+            team2Received++;
         }
 
         messagesRead++;
     }
+    
     // Update efforts with whatever data we have, even if incomplete
     updateTotalEffort(&team1, team1Messages);
     updateTotalEffort(&team2, team2Messages);
