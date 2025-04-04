@@ -182,11 +182,23 @@ void drawScore()
 
     // Draw game status
     char statusText[100];
+
     if (!currentGameState.gameRunning)
     {
-        sprintf(statusText, "Game Over! Winner: Team %d",
-                currentGameState.team1Score > currentGameState.team2Score ? 1 : 2);
+        if (currentGameState.team1Score > currentGameState.team2Score)
+        {
+            sprintf(statusText, "Game Over! Winner: Team 1");
+        }
+        else if (currentGameState.team2Score > currentGameState.team1Score)
+        {
+            sprintf(statusText, "Game Over! Winner: Team 2");
+        }
+        else
+        {
+            sprintf(statusText, "Game Over! Result: Draw");
+        }
     }
+
     else
     {
         int remainingTime = config.gameDuration - (time(NULL) - currentGameState.gameStartTime);
