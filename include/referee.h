@@ -4,7 +4,7 @@
 #include "common.h"
 #include "team.h"
 
-// Global variables 
+// Global variables
 extern int roundsPlayed;
 extern time_t gameStartTime;
 extern Team team1;
@@ -41,7 +41,5 @@ void gameLoop();
 void sendGameStateToVisualizer(int pipe_fd);
 void waitForVisualizerAck();
 void requestPlayerStates();
-
-
 
 #endif // REFEREE_H

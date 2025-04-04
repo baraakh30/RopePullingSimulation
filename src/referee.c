@@ -77,12 +77,12 @@ void startNewRound()
     requestPlayerStates();
 
     // Sort players by energy
-    sortPlayersByEnergy(&team1,team1Messages);
-    sortPlayersByEnergy(&team2,team2Messages);
+    sortPlayersByEnergy(&team1, team1Messages);
+    sortPlayersByEnergy(&team2, team2Messages);
 
     // Signal players to start pulling before requesting state
     signalTeams(SIG_START_PULLING);
-    
+
     // Allow players to start pulling
     usleep(500000); // 500ms
 

@@ -27,7 +27,7 @@ void sortPlayersByEnergy(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM])
             if (team->players[j].id == messages[i].playerId)
             {
                 // Update energy based on message
-                team->players[j].energy = messages[i].energy; // Convert back from weighted effort
+                team->players[j].energy = messages[i].energy;
                 break;
             }
         }
@@ -52,25 +52,24 @@ void sortPlayersByEnergy(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM])
     for (int i = 0; i < PLAYERS_PER_TEAM; i++)
     {
         team->players[i].position = i;
-        
+
         // Structure the position message to include player ID and team ID
         char posMessage[3];
-        posMessage[0] = team->id + '0';    // Team ID
-        posMessage[1] = team->players[i].id + '0';  // Player ID
-        posMessage[2] = i + '0';           // New position
-        
+        posMessage[0] = team->id + '0';            // Team ID
+        posMessage[1] = team->players[i].id + '0'; // Player ID
+        posMessage[2] = i + '0';                   // New position
+
         // Send the complete position message
         write(position_pipe[1], posMessage, 3);
-        
+
         // Signal player to read their position update
         kill(team->players[i].pid, SIG_UPDATE_POSITION);
-        
+
         // Update player ID in the team structure
         team->players[i].id = i;
         //  small delay to ensure signal processing
         usleep(1000);
     }
-    
 }
 
 void updateTotalEffort(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM])
@@ -98,8 +97,8 @@ void createPlayers(Team *team)
             close(player_to_referee[0]);
             close(position_pipe[1]);
             // Child process (player)
-            playerProcess(i, team->id, team->players[i].energy, 
-                team->players[i].decreaseRate, team->players[i].position);
+            playerProcess(i, team->id, team->players[i].energy,
+                          team->players[i].decreaseRate, team->players[i].position);
             exit(EXIT_SUCCESS); // Should not reach here
         }
         else

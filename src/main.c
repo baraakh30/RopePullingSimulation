@@ -12,7 +12,7 @@ int lastWinner = 0;
 bool gameRunning = true;
 int player_to_referee[2];
 int referee_to_visualizer[2];
-int visualizer_to_referee[2]; 
+int visualizer_to_referee[2];
 int position_pipe[2];
 
 int main(int argc, char **argv)
@@ -51,8 +51,8 @@ int main(int argc, char **argv)
         close(player_to_referee[1]);
         close(position_pipe[0]);
         close(position_pipe[1]);
-        close(referee_to_visualizer[1]); // Close write end in visualizer
-        close(visualizer_to_referee[0]); // Close read end in visualizer
+        close(referee_to_visualizer[1]); 
+        close(visualizer_to_referee[0]); 
 
         // Run visualization
         runVisualizer(argc, argv, referee_to_visualizer[0], visualizer_to_referee[1]);

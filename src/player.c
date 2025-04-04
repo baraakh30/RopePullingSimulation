@@ -15,7 +15,7 @@ void playerProcess(int id, int tid, int initialEnergy, int initialDecreaseRate, 
     teamId = tid;
     energy = initialEnergy;
     decreaseRate = initialDecreaseRate;
-    position = initialPosition;    
+    position = initialPosition;
 
     srand(time(NULL) ^ (getpid() << 16));
 
@@ -23,10 +23,10 @@ void playerProcess(int id, int tid, int initialEnergy, int initialDecreaseRate, 
     signal(SIG_GET_READY, handleGetReadySignal);
     signal(SIG_START_PULLING, handleStartPullingSignal);
     signal(SIG_ROUND_END, handleRoundEndSignal);
-    signal(SIG_REQUEST_STATE, handleStateRequestSignal);  // New signal handler
+    signal(SIG_REQUEST_STATE, handleStateRequestSignal); // New signal handler
     signal(SIGALRM, handleAlarmSignal);
     signal(SIG_UPDATE_POSITION, handlePositionUpdateSignal);
-    
+
     // Player main loop
     while (gameRunning)
     {
@@ -42,13 +42,11 @@ void handleGetReadySignal(int sig)
     // Reset for new round
     fallen = false;
     pulling = false;
-
 }
 
 void handleStartPullingSignal(int sig)
 {
     pulling = true;
-
 }
 
 void handleRoundEndSignal(int sig)
@@ -66,7 +64,7 @@ void handleStateRequestSignal(int sig)
     if (pulling && !fallen)
     {
         // Reduce energy based on decreaseRate
-        energy -= decreaseRate + rand() % 2; 
+        energy -= decreaseRate + rand() % 2;
         if (energy < 0)
             energy = 0;
 
@@ -111,43 +109,50 @@ void handleAlarmSignal(int sig)
         // Regain some energy when rejoining
         energy = energyBeforeFall;
 
-        pulling = true; 
- 
+        pulling = true;
     }
 }
 
 void handlePositionUpdateSignal(int sig)
 {
-    char positionBuf[3];  // Buffer to hold [teamId, playerId, position]
+    char positionBuf[3]; // Buffer to hold [teamId, playerId, position]
     ssize_t bytesRead;
-    
+
     // Read the position message
     bytesRead = read(position_pipe[0], positionBuf, 3);
-    
-    if (bytesRead == 3) {
+
+    if (bytesRead == 3)
+    {
         // Check if this message is intended for this player
         int msgTeamId = positionBuf[0] - '0';
         int msgPlayerId = positionBuf[1] - '0';
-        
-        if (msgTeamId == teamId && msgPlayerId == playerId) {
+
+        if (msgTeamId == teamId && msgPlayerId == playerId)
+        {
             // Update position if the message is for this player
             position = positionBuf[2] - '0';
-            
-            printf("Player %d from Team %d position updated to %d\n", 
+
+            printf("Player %d from Team %d position updated to %d\n",
                    playerId, teamId, position);
             playerId = position;
-        } else {
+        }
+        else
+        {
             // Return the message to the pipe for other players to read
             write(position_pipe[1], positionBuf, 3);
         }
-    } else if (bytesRead > 0) {
+    }
+    else if (bytesRead > 0)
+    {
         // Partial read, put back what we read
         write(position_pipe[1], positionBuf, bytesRead);
-        fprintf(stderr, "Player %d from Team %d: partial position message read\n", 
+        fprintf(stderr, "Player %d from Team %d: partial position message read\n",
                 playerId, teamId);
-    } else {
+    }
+    else
+    {
         // Handle error
-        fprintf(stderr, "Player %d from Team %d could not read new position\n", 
+        fprintf(stderr, "Player %d from Team %d could not read new position\n",
                 playerId, teamId);
     }
 }
@@ -155,7 +160,7 @@ void handlePositionUpdateSignal(int sig)
 void calculateEffort()
 {
     // Calculate weighted effort based on position (1, 2, 3, or 4)
-   int weightedEffort = (pulling && !fallen) ? energy * (position + 1) : (pulling || fallen ? 0 : energy);
+    int weightedEffort = (pulling && !fallen) ? energy * (position + 1) : (pulling || fallen ? 0 : energy);
 
     // Send effort to referee
     PlayerMessage msg;
