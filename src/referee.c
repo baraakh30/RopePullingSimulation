@@ -49,7 +49,7 @@ void initGame()
 
     // Close write end of player_to_referee pipe in referee
     close(player_to_referee[1]);
-
+    close(position_pipe[0]);
     // Record start time
     gameStartTime = time(NULL);
 }
@@ -74,18 +74,19 @@ void startNewRound()
     // Allow players to get ready
     usleep(500000); // 500ms
 
-    // Signal players to start pulling before requesting state
-    signalTeams(SIG_START_PULLING);
-
-    // Allow players to start pulling
-    usleep(500000); // 500ms
-
-
     requestPlayerStates();
 
     // Sort players by energy
-    sortPlayersByEnergy(&team1);
-    sortPlayersByEnergy(&team2);
+    sortPlayersByEnergy(&team1,team1Messages);
+    sortPlayersByEnergy(&team2,team2Messages);
+
+    // Signal players to start pulling before requesting state
+    signalTeams(SIG_START_PULLING);
+    
+    // Allow players to start pulling
+    usleep(500000); // 500ms
+
+    requestPlayerStates();
 
     sendGameStateToVisualizer(referee_to_visualizer[1]);
 }

@@ -17,9 +17,23 @@ void initTeam(Team *team, int teamId)
     }
 }
 
-void sortPlayersByEnergy(Team *team)
+void sortPlayersByEnergy(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM])
 {
-    // Simple bubble sort (for a small array it's fine)
+    // First update player energies from messages
+    for (int i = 0; i < PLAYERS_PER_TEAM; i++)
+    {
+        for (int j = 0; j < PLAYERS_PER_TEAM; j++)
+        {
+            if (team->players[j].id == messages[i].playerId)
+            {
+                // Update energy based on message
+                team->players[j].energy = messages[i].energy; // Convert back from weighted effort
+                break;
+            }
+        }
+    }
+
+    // Sort players by energy using bubble sort
     for (int i = 0; i < PLAYERS_PER_TEAM - 1; i++)
     {
         for (int j = 0; j < PLAYERS_PER_TEAM - i - 1; j++)
@@ -38,7 +52,25 @@ void sortPlayersByEnergy(Team *team)
     for (int i = 0; i < PLAYERS_PER_TEAM; i++)
     {
         team->players[i].position = i;
+        
+        // Structure the position message to include player ID and team ID
+        char posMessage[3];
+        posMessage[0] = team->id + '0';    // Team ID
+        posMessage[1] = team->players[i].id + '0';  // Player ID
+        posMessage[2] = i + '0';           // New position
+        
+        // Send the complete position message
+        write(position_pipe[1], posMessage, 3);
+        
+        // Signal player to read their position update
+        kill(team->players[i].pid, SIG_UPDATE_POSITION);
+        
+        // Update player ID in the team structure
+        team->players[i].id = i;
+        //  small delay to ensure signal processing
+        usleep(1000);
     }
+    
 }
 
 void updateTotalEffort(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM])
@@ -64,8 +96,10 @@ void createPlayers(Team *team)
         else if (pid == 0)
         {
             close(player_to_referee[0]);
+            close(position_pipe[1]);
             // Child process (player)
-            playerProcess(i, team->id);
+            playerProcess(i, team->id, team->players[i].energy, 
+                team->players[i].decreaseRate, team->players[i].position);
             exit(EXIT_SUCCESS); // Should not reach here
         }
         else

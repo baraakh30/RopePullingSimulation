@@ -54,11 +54,13 @@ extern int draw;
 extern int player_to_referee[2];
 extern int referee_to_visualizer[2];
 extern int visualizer_to_referee[2];
+extern int position_pipe[2];
 
 // Signals
 #define SIG_GET_READY SIGUSR1
 #define SIG_START_PULLING SIGUSR2
 #define SIG_ROUND_END SIGTERM
 #define SIG_REQUEST_STATE SIGINT
+#define SIG_UPDATE_POSITION SIGILL
 
 #endif // COMMON_H

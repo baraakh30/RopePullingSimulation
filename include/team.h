@@ -16,7 +16,7 @@ typedef struct
 
 // Function declarations
 void initTeam(Team *team, int teamId);
-void sortPlayersByEnergy(Team *team);
+void sortPlayersByEnergy(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM]);
 void updateTotalEffort(Team *team, PlayerMessage messages[PLAYERS_PER_TEAM]);
 void createPlayers(Team *team);
 
