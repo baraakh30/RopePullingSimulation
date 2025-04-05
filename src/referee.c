@@ -11,6 +11,7 @@ PlayerMessage team1Messages[PLAYERS_PER_TEAM];
 PlayerMessage team2Messages[PLAYERS_PER_TEAM];
 static bool winPending = false;
 static time_t winCandidateStartTime = 0;
+static int lastLeadingTeam = 0;
 
 void loadConfig(const char *filename)
 {
@@ -241,18 +242,27 @@ void collectPlayerEfforts()
 void determineRoundWinner()
 {
     int effortDifference = team1.totalEffort - team2.totalEffort;
-    static int lastLeadingTeam = 0; // Track which team was leading
     printf("Team 1 Effort: %d\n", team1.totalEffort);
     printf("Team 2 Effort: %d\n", team2.totalEffort);
     printf("Difference: %d\n", effortDifference);
     checkGameEnd();
     if (!gameRunning)
         return;
+    
     // Check if a team has won
     if (abs(effortDifference) >= config.winThreshold)
     {
         int currentLeadingTeam = (effortDifference > 0) ? 1 : 2;
 
+        // For zero wait time, process the win immediately
+        if (config.waitBeforeWin == 0)
+        {
+            printf("Win threshold exceeded by Team %d! Immediate win.\n", currentLeadingTeam);
+            declareWinner(effortDifference > 0);
+            return;
+        }
+        
+        // For non-zero wait time, handle the countdown logic
         // If the leading team changed, reset the timer
         if (winPending && lastLeadingTeam != currentLeadingTeam)
         {
@@ -269,53 +279,11 @@ void determineRoundWinner()
             printf("Win threshold exceeded by Team %d! Waiting %d seconds to confirm...\n",
                    currentLeadingTeam, config.waitBeforeWin);
         }
-        else if (time(NULL) - winCandidateStartTime >= config.waitBeforeWin)
+
+        // Check if waiting time has passed
+        if (time(NULL) - winCandidateStartTime >= config.waitBeforeWin)
         {
-            // Confirm the winner
-            roundActive = false;
-
-            if (effortDifference > 0)
-            {
-                team1.isWinner = true;
-                team2.isWinner = false;
-                team1Score++;
-                printf("Team 1 wins the round!\n");
-
-                if (lastWinner == 1)
-                    consecutiveWins++;
-                else
-                {
-                    consecutiveWins = 1;
-                    lastWinner = 1;
-                }
-            }
-            else
-            {
-                team2.isWinner = true;
-                team1.isWinner = false;
-                team2Score++;
-                printf("Team 2 wins the round!\n");
-
-                if (lastWinner == 2)
-                    consecutiveWins++;
-                else
-                {
-                    consecutiveWins = 1;
-                    lastWinner = 2;
-                }
-            }
-
-            roundsPlayed++;
-            signalTeams(SIG_ROUND_END);
-            checkGameEnd();
-            winPending = false;
-            lastLeadingTeam = 0; // Reset for next round
-
-            if (gameRunning)
-            {
-                sendGameStateToVisualizer(referee_to_visualizer[1]);
-                startNewRound();
-            }
+            declareWinner(effortDifference > 0);
         }
     }
     else
@@ -345,6 +313,55 @@ void determineRoundWinner()
     }
 }
 
+// Helper function to declare a winner and handle end-of-round tasks
+void declareWinner(bool team1Wins)
+{
+    // Confirm the winner
+    roundActive = false;
+
+    if (team1Wins)
+    {
+        team1.isWinner = true;
+        team2.isWinner = false;
+        team1Score++;
+        printf("Team 1 wins the round!\n");
+
+        if (lastWinner == 1)
+            consecutiveWins++;
+        else
+        {
+            consecutiveWins = 1;
+            lastWinner = 1;
+        }
+    }
+    else
+    {
+        team2.isWinner = true;
+        team1.isWinner = false;
+        team2Score++;
+        printf("Team 2 wins the round!\n");
+
+        if (lastWinner == 2)
+            consecutiveWins++;
+        else
+        {
+            consecutiveWins = 1;
+            lastWinner = 2;
+        }
+    }
+
+    roundsPlayed++;
+    signalTeams(SIG_ROUND_END);
+    checkGameEnd();
+    winPending = false;
+    lastLeadingTeam = 0; // Reset for next round
+
+    if (gameRunning)
+    {
+        sendGameStateToVisualizer(referee_to_visualizer[1]);
+        startNewRound();
+    }
+}
 // Wait for visualizer acknowledgment
 void waitForVisualizerAck()
 {
