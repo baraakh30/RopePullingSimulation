@@ -41,5 +41,6 @@ void gameLoop();
 void sendGameStateToVisualizer(int pipe_fd);
 void waitForVisualizerAck();
 void requestPlayerStates();
+void declareWinner(bool team1Wins);
 
 #endif // REFEREE_H
