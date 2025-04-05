@@ -57,10 +57,11 @@ extern int visualizer_to_referee[2];
 extern int position_pipe[2];
 
 // Signals
-#define SIG_GET_READY SIGUSR1
-#define SIG_START_PULLING SIGUSR2
-#define SIG_ROUND_END SIGTERM
-#define SIG_REQUEST_STATE SIGINT
-#define SIG_UPDATE_POSITION SIGILL
+#define SIG_GET_READY SIGUSR1      
+#define SIG_START_PULLING SIGUSR2   
+#define SIG_ROUND_END SIGQUIT      
+#define SIG_REQUEST_STATE SIGPIPE  
+#define SIG_UPDATE_POSITION SIGSTKFLT 
+
 
 #endif // COMMON_H

@@ -14,6 +14,39 @@ int player_to_referee[2];
 int referee_to_visualizer[2];
 int visualizer_to_referee[2];
 int position_pipe[2];
+pid_t viz_pid;
+
+// Signal handler for visualizer exit
+void handle_viz_exit(int sig)
+{
+    int status;
+    pid_t pid;
+
+    // Check if the visualizer has exited
+    pid = waitpid(viz_pid, &status, WNOHANG);
+
+    if (pid == viz_pid)
+    {
+        printf("Visualizer has closed. Cleaning up and exiting...\n");
+        gameRunning = false;
+        cleanupGame();
+        exit(0);
+    }
+}
+
+// Signal handler for keyboard interrupt
+void handle_keyboard_interrupt(int sig)
+{
+    printf("Keyboard interrupt received. Cleaning up and exiting...\n");
+    gameRunning = false;
+
+    // Kill visualizer process if it's still running
+    kill(viz_pid, SIGTERM);
+
+    // Clean up game resources
+    cleanupGame();
+    exit(0);
+}
 
 int main(int argc, char **argv)
 {
@@ -29,6 +62,9 @@ int main(int argc, char **argv)
     // Load game configuration
     loadConfig(argv[1]);
 
+    signal(SIGCHLD, handle_viz_exit);          // Handle visualizer exit
+    signal(SIGINT, handle_keyboard_interrupt); // Handle Ctrl+C
+
     // Create pipes for communication
     if (pipe(player_to_referee) == -1 || pipe(referee_to_visualizer) == -1 || pipe(visualizer_to_referee) == -1 || pipe(position_pipe) == -1)
     {
@@ -36,7 +72,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     // Fork for visualization process
-    pid_t viz_pid = fork();
+    viz_pid = fork();
 
     if (viz_pid == -1)
     {
@@ -51,8 +87,8 @@ int main(int argc, char **argv)
         close(player_to_referee[1]);
         close(position_pipe[0]);
         close(position_pipe[1]);
-        close(referee_to_visualizer[1]); 
-        close(visualizer_to_referee[0]); 
+        close(referee_to_visualizer[1]);
+        close(visualizer_to_referee[0]);
 
         // Run visualization
         runVisualizer(argc, argv, referee_to_visualizer[0], visualizer_to_referee[1]);
@@ -72,6 +108,10 @@ int main(int argc, char **argv)
 
     // Run the game loop
     gameLoop();
+    int status;
+    waitpid(viz_pid, &status, 0);
 
+    printf("Game terminated. Cleaning up...\n");
+    cleanupGame();
     return 0;
 }

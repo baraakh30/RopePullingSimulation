@@ -447,9 +447,9 @@ void cleanupGame()
 
     // Close pipes
     close(player_to_referee[0]);
+    close(position_pipe[1]);
     close(referee_to_visualizer[1]);
     close(visualizer_to_referee[0]);
-    close(visualizer_to_referee[1]);
 }
 
 // Main game loop function
@@ -469,5 +469,4 @@ void gameLoop()
         // Sleep for 1 second
         sleep(1);
     }
-    cleanupGame();
 }
